@@ -243,7 +243,7 @@
       <axis xyz="0 0 1" />
       <limit lower="-3.04" upper="3.04" effort="300" velocity="100" />
     </joint>
-    <joint name="${prefix}should_lift_joint" type="revolute">
+    <joint name="${prefix}shoulder_lift_joint" type="revolute">
       <origin xyz="0 0.1215 0" rpy="-1.5708 -1.5708 0" />
       <parent link="${prefix}shoulder_link" />
       <child link="${prefix}upper_arm_link" />
