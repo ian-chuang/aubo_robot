@@ -279,6 +279,21 @@
       <limit lower="-3.04" upper="3.04" effort="300" velocity="100" />
     </joint>
 
+
+    <link name="${prefix}ee_link">
+      <collision>
+        <geometry>
+          <box size="0.01 0.01 0.01" />
+        </geometry>
+        <origin rpy="0 0 0" xyz="-0.01 0 0" />
+      </collision>
+    </link>
+    <joint name="${prefix}ee_fixed_joint" type="fixed">
+      <parent link="${prefix}wrist_3_link" />
+      <child link="${prefix}ee_link" />
+      <origin rpy="${pi} ${-pi/2} ${pi/2}" xyz="0.0 0.0 0.0" />
+    </joint>
+
     <joint name="${prefix}aubo_i5_base_joint" type="fixed">
       <parent link="${parent}"/>
       <child link="${prefix}aubo_i5_base_link"/>
