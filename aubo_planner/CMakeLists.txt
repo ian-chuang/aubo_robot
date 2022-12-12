@@ -9,7 +9,7 @@ find_package(catkin REQUIRED COMPONENTS roscpp std_msgs sensor_msgs
   control_msgs trajectory_msgs actionlib_msgs actionlib
   urdf industrial_msgs industrial_utils)
 
-find_package(Eigen REQUIRED)
+find_package(Eigen3 REQUIRED)
 
 if("$ENV{ROS_DISTRO}" STREQUAL "kinetic")
     find_package(Eigen3 REQUIRED)
