@@ -13,13 +13,10 @@
 
   <buildtool_depend>catkin</buildtool_depend>
   <run_depend>aubo_controller</run_depend>
-  <run_depend>aubo_demo</run_depend>
   <run_depend>aubo_description</run_depend>
   <run_depend>aubo_driver</run_depend>
   <run_depend>aubo_gazebo</run_depend>
-  <run_depend>aubo_kinematics</run_depend>
   <run_depend>aubo_msgs</run_depend>
-  <run_depend>aubo_planner</run_depend>
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>
