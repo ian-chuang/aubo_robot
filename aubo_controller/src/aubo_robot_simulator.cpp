@@ -58,6 +58,8 @@
 #include <controller_manager/controller_manager.h>
 #include <realtime_tools/realtime_publisher.h>
 
+using namespace ros;
+
 
 #define ARM_DOF 8
 namespace aubo_controller {
@@ -128,6 +130,7 @@ public:
             {
                 joint_positions_[i] = msg->data[i];
             }
+            ROS_INFO(msg); //
             ROS_DEBUG("Update current joint state successfully!");
         }
     }

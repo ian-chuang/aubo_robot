@@ -1,13 +1,15 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(aubo_controller)
 
-find_package(catkin REQUIRED COMPONENTS aubo_msgs  moveit_core moveit_ros_planning moveit_ros_planning_interface pluginlib cmake_modules)
+find_package(catkin REQUIRED COMPONENTS aubo_msgs  moveit_core moveit_ros_planning moveit_ros_planning_interface pluginlib cmake_modules )
 
 find_package(Boost REQUIRED system filesystem date_time thread)
 
 find_package(catkin REQUIRED COMPONENTS roscpp std_msgs sensor_msgs
   control_msgs trajectory_msgs actionlib_msgs actionlib
-  urdf industrial_msgs industrial_utils)
+  urdf industrial_msgs industrial_utils 
+    controller_manager
+    hardware_interface)
 
 #find_package(Eigen REQUIRED)
 
@@ -27,6 +29,8 @@ catkin_package(
     actionlib_msgs
     industrial_utils
     urdf
+    controller_manager
+    hardware_interface
     INCLUDE_DIRS include
     LIBRARIES ${PROJECT_NAME}_dummy
 )
@@ -55,6 +59,11 @@ install(TARGETS aubo_joint_trajectory_action DESTINATION ${CATKIN_PACKAGE_BIN_DE
 #ADD_EXECUTABLE(aubo_simulator_controller ${${PROJECT_NAME}_SOURCES1})
 #TARGET_LINK_LIBRARIES(aubo_simulator_controller industrial_robot_client ${catkin_LIBRARIES})
 #install(TARGETS aubo_simulator_controller DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
+
+
+add_executable(aubo_hardware_interface src/aubo_hardware_interface.cpp)
+target_link_libraries(aubo_hardware_interface ${catkin_LIBRARIES})
+add_dependencies(aubo_hardware_interface ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 catkin_install_python(PROGRAMS script/aubo_controller/aubo_robot_simulator
    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})

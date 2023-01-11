@@ -33,7 +33,7 @@
 
 namespace aubo_driver {
 
-std::string AuboDriver::joint_name_[ARM_DOF] = {"shoulder_joint","upperArm_joint","foreArm_joint","wrist1_joint","wrist2_joint","wrist3_joint"};
+std::string AuboDriver::joint_name_[ARM_DOF] = {"shoulder_pan_joint", "shoulder_lift_joint", "elbow_joint", "wrist_1_joint", "wrist_2_joint", "wrist_3_joint"};
 
 AuboDriver::AuboDriver(int num = 0):delay_clear_times(0),buffer_size_(400),io_flag_delay_(0.02),data_recieved_(false),data_count_(0),real_robot_exist_(false),emergency_stopped_(false),protective_stopped_(false),normal_stopped_(false),
     controller_connected_flag_(false),start_move_(false),control_mode_ (aubo_driver::SendTargetGoal),rib_buffer_size_(0),jti(ARM_DOF,1.0/200),jto(ARM_DOF),collision_class_(6)
@@ -64,13 +64,15 @@ AuboDriver::AuboDriver(int num = 0):delay_clear_times(0),buffer_size_(400),io_fl
     rib_status_.data.resize(3);
 
     /** publish messages **/
-    joint_states_pub_ = nh_.advertise<sensor_msgs::JointState>("joint_states", 300);
+    // joint_states_pub_ = nh_.advertise<sensor_msgs::JointState>("joint_states", 300);
+    joint_states_pub_ = nh_.advertise<sensor_msgs::JointState>("/aubo_driver/joint_states", 300);
     joint_feedback_pub_ = nh_.advertise<control_msgs::FollowJointTrajectoryFeedback>("feedback_states", 100);
     joint_target_pub_ = nh_.advertise<std_msgs::Float32MultiArray>("/aubo_driver/real_pose", 50);
     robot_status_pub_ = nh_.advertise<industrial_msgs::RobotStatus>("robot_status", 100);
     io_pub_ = nh_.advertise<aubo_msgs::IOState>("/aubo_driver/io_states", 10);
     rib_pub_ = nh_.advertise<std_msgs::Int32MultiArray>("/aubo_driver/rib_status", 100);
     cancle_trajectory_pub_ = nh_.advertise<std_msgs::UInt8>("aubo_driver/cancel_trajectory",100);
+
     io_srv_ = nh_.advertiseService("/aubo_driver/set_io",&AuboDriver::setIO, this);
     ik_srv_ = nh_.advertiseService("/aubo_driver/get_ik",&AuboDriver::getIK, this);
     fk_srv_ = nh_.advertiseService("/aubo_driver/get_fk",&AuboDriver::getFK, this);
@@ -217,7 +219,8 @@ bool AuboDriver::roadPointCompare(double *point1, double *point2)
     bool ret = false;
     for(int i = 0; i < axis_number_;i++)
     {
-        if(fabs(point1[i] - point2[i]) >= THRESHHOLD)
+        double diff = fabs(point1[i] - point2[i]);
+        if(diff >= THRESHHOLD && diff <= 0.1)
         {
             ret = true;
             break;
@@ -259,8 +262,7 @@ bool AuboDriver::setRobotJointsByMoveIt()
     if(!buf_queue_.empty())
     {
         PlanningState ps = buf_queue_.front();
-        buf_queue_.pop();
-     
+        buf_queue_.pop();     
 
         if(controller_connected_flag_)      // actually no need this judgment
         {
@@ -290,7 +292,8 @@ bool AuboDriver::setRobotJointsByMoveIt()
                 {
                    resultValue = otgVelocityModeResult(1, jto);
                    double jointAngle[] = {jto.newPosition[0],jto.newPosition[1],jto.newPosition[2],jto.newPosition[3],jto.newPosition[4],jto.newPosition[5]};
-                   ret = robot_send_service_.robotServiceSetRobotPosData2Canbus(jointAngle);
+                   ROS_INFO("WHAT THE PROTECT STOP?\n\n");
+                //    ret = robot_send_service_.robotServiceSetRobotPosData2Canbus(jointAngle);
                    //std::cout<<jointAngle[0]<<","<<jointAngle[1]<<","<<jointAngle[2]<<","<<jointAngle[3]<<","<<jointAngle[4]<<","<<jointAngle[5]<<","<<std::endl;
 
                 }
@@ -309,6 +312,7 @@ bool AuboDriver::setRobotJointsByMoveIt()
             else
             {
                 ret = robot_send_service_.robotServiceSetRobotPosData2Canbus(ps.joint_pos_);
+                std::cout << "SENDING: " << ps.joint_pos_[0]<<","<<ps.joint_pos_[1]<<","<<ps.joint_pos_[2]<<","<<ps.joint_pos_[3]<<","<<ps.joint_pos_[4]<<","<<ps.joint_pos_[5]<<std::endl;
             }
 #ifdef LOG_INFO_DEBUG
             //            struct timeb tb;
@@ -383,7 +387,7 @@ void AuboDriver::moveItPosCallback(const trajectory_msgs::JointTrajectoryPoint::
         if(roadPointCompare(jointAngle, last_recieve_point_))
         {
             //            data_recieved_ = true;
-            ROS_DEBUG("Add new waypoint to the buffer.");
+            // ROS_INFO("Add new waypoint to the buffer.");
             data_count_ = 0;
             PlanningState ps;
 
@@ -392,8 +396,11 @@ void AuboDriver::moveItPosCallback(const trajectory_msgs::JointTrajectoryPoint::
             memcpy(ps.joint_acc_, &msg->accelerations[0], sizeof(double) * axis_number_);
             memcpy(last_recieve_point_, jointAngle, sizeof(double) * axis_number_);
             buf_queue_.push(ps);
-            if(buf_queue_.size() > buffer_size_ && !start_move_)
+            if(buf_queue_.size() > 0 && !start_move_)
                 start_move_ = true;
+        }
+        else {
+            ROS_INFO("CANCEL WAYPOINT**************");
         }
     }
     else
@@ -515,6 +522,9 @@ void AuboDriver::AuboAPICallback(const std_msgs::Float32MultiArray::ConstPtr &ms
             /** move to a pose target **/
         }
 
+    }
+    else {
+        ROS_INFO("NOT RUNNING");
     }
 }
 

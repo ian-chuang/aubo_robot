@@ -32,6 +32,9 @@
   <build_depend>cmake_modules</build_depend>
   <build_depend>geometric_shapes</build_depend>
 
+  <build_depend>controller_manager</build_depend>
+  <build_depend>hardware_interface</build_depend>
+
   <run_depend>roscpp</run_depend>
   <run_depend>std_msgs</run_depend>
   <run_depend>sensor_msgs</run_depend>
@@ -52,5 +55,8 @@
   <run_depend>moveit_ros_planning_interface</run_depend>
   <run_depend>moveit_ros_perception</run_depend>
   <run_depend>interactive_markers</run_depend>
+
+  <run_depend>controller_manager</run_depend>
+  <run_depend>hardware_interface</run_depend>
 
 </package>
