@@ -277,37 +277,37 @@ bool AuboDriver::setRobotJointsByMoveIt()
             {
                 //cancle.data will be set 0 in the aubo_robot_simulator.py when clear this one trajectory data
 
-                std_msgs::UInt8 cancle;
-                cancle.data = 1;
-                cancle_trajectory_pub_.publish(cancle);
+                // std_msgs::UInt8 cancle;
+                // cancle.data = 1;
+                // cancle_trajectory_pub_.publish(cancle);
 
                 //first slow down, until the velocity to 0.
-                memcpy(&jti.currentPosition[0], ps.joint_pos_, axis_number_*sizeof(double));
-                memcpy(&jti.currentVelocity[0], ps.joint_vel_, axis_number_*sizeof(double));
-                memcpy(&jti.currentAcceleration[0], ps.joint_acc_, axis_number_*sizeof(double));
-                memset(&jti.targetVelocity[0], 0, axis_number_*sizeof(double));
-                bool update = otgVelocityModeParameterUpdate(jti);
-                int resultValue = 0;
-                while(resultValue != 1)
-                {
-                   resultValue = otgVelocityModeResult(1, jto);
-                   double jointAngle[] = {jto.newPosition[0],jto.newPosition[1],jto.newPosition[2],jto.newPosition[3],jto.newPosition[4],jto.newPosition[5]};
-                   ROS_INFO("WHAT THE PROTECT STOP?\n\n");
+                // memcpy(&jti.currentPosition[0], ps.joint_pos_, axis_number_*sizeof(double));
+                // memcpy(&jti.currentVelocity[0], ps.joint_vel_, axis_number_*sizeof(double));
+                // memcpy(&jti.currentAcceleration[0], ps.joint_acc_, axis_number_*sizeof(double));
+                // memset(&jti.targetVelocity[0], 0, axis_number_*sizeof(double));
+                // bool update = otgVelocityModeParameterUpdate(jti);
+                // int resultValue = 0;
+                // while(resultValue != 1)
+                // {
+                //    resultValue = otgVelocityModeResult(1, jto);
+                //    double jointAngle[] = {jto.newPosition[0],jto.newPosition[1],jto.newPosition[2],jto.newPosition[3],jto.newPosition[4],jto.newPosition[5]};
+                //    ROS_INFO("WHAT THE PROTECT STOP?\n\n");
                 //    ret = robot_send_service_.robotServiceSetRobotPosData2Canbus(jointAngle);
                    //std::cout<<jointAngle[0]<<","<<jointAngle[1]<<","<<jointAngle[2]<<","<<jointAngle[3]<<","<<jointAngle[4]<<","<<jointAngle[5]<<","<<std::endl;
 
-                }
+                // }
                 //clear the buffer
-                start_move_ = false;
-                while(!buf_queue_.empty())
-                    buf_queue_.pop();
+                // start_move_ = false;
+                // while(!buf_queue_.empty())
+                //     buf_queue_.pop();
 
                 //clear the flag
-                if(normal_stopped_)
-                {
-                    normal_stopped_ = false;
-                    delay_clear_times = STOP_DELAY_CLEAR_TIMES;
-                }
+                // if(normal_stopped_)
+                // {
+                //     normal_stopped_ = false;
+                //     delay_clear_times = STOP_DELAY_CLEAR_TIMES;
+                // }
             }
             else
             {
@@ -401,6 +401,13 @@ void AuboDriver::moveItPosCallback(const trajectory_msgs::JointTrajectoryPoint::
         }
         else {
             ROS_INFO("CANCEL WAYPOINT**************");
+            PlanningState ps;
+
+            memcpy(ps.joint_pos_, jointAngle, sizeof(double) * axis_number_);
+            memcpy(ps.joint_vel_, &msg->velocities[0], sizeof(double) * axis_number_);
+            memcpy(ps.joint_acc_, &msg->accelerations[0], sizeof(double) * axis_number_);
+            std::cout << "CANCELED: " << ps.joint_pos_[0]<<","<<ps.joint_pos_[1]<<","<<ps.joint_pos_[2]<<","<<ps.joint_pos_[3]<<","<<ps.joint_pos_[4]<<","<<ps.joint_pos_[5]<<std::endl;
+
         }
     }
     else
