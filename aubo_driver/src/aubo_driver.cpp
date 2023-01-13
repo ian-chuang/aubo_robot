@@ -31,6 +31,12 @@
 
 #include "aubo_driver/aubo_driver.h"
 
+
+
+
+
+
+
 namespace aubo_driver {
 
 std::string AuboDriver::joint_name_[ARM_DOF] = {"shoulder_pan_joint", "shoulder_lift_joint", "elbow_joint", "wrist_1_joint", "wrist_2_joint", "wrist_3_joint"};
@@ -80,10 +86,12 @@ AuboDriver::AuboDriver(int num = 0):delay_clear_times(0),buffer_size_(400),io_fl
     /** subscribe topics **/
     trajectory_execution_subs_ = nh_.subscribe("trajectory_execution_event", 10, &AuboDriver::trajectoryExecutionCallback,this);
     robot_control_subs_ = nh_.subscribe("robot_control", 10, &AuboDriver::robotControlCallback,this);
-    moveit_controller_subs_ = nh_.subscribe("moveItController_cmd", 2000, &AuboDriver::moveItPosCallback,this);
+    moveit_controller_subs_ = nh_.subscribe("moveItController_cmd", 100, &AuboDriver::moveItPosCallback,this);
     teach_subs_ = nh_.subscribe("teach_cmd", 10, &AuboDriver::teachCallback,this);
     moveAPI_subs_ = nh_.subscribe("moveAPI_cmd", 10, &AuboDriver::AuboAPICallback, this);
     controller_switch_sub_ = nh_.subscribe("/aubo_driver/controller_switch", 10, &AuboDriver::controllerSwitchCallback, this);
+
+
 }
 
 AuboDriver::~AuboDriver()
@@ -112,6 +120,8 @@ void AuboDriver::timerCallback(const ros::TimerEvent& e)
             /** Get the buff size of thr rib **/
             robot_receive_service_.robotServiceGetRobotDiagnosisInfo(rs.robot_diagnosis_info_);
             rib_buffer_size_ = rs.robot_diagnosis_info_.macTargetPosDataSize;
+
+            // std::cout << rib_buffer_size_ << std::endl;
 
 //            robot_receive_service_.robotServiceGetRobotCurrentState(rs.state_);            // this is controlled by Robot Controller
 //            robot_receive_service_.getErrDescByCode(rs.code_);
@@ -146,6 +156,8 @@ void AuboDriver::timerCallback(const ros::TimerEvent& e)
     {
         /** maintain the ros-controller states from the ros environment **/
         setCurrentPosition(target_point_);      //return back immediately
+
+        ROS_INFO("SETTING CURRENT POSITION TO BE TARGET POINT");
     }
 
     robot_status_pub_.publish(robot_status_);
@@ -311,8 +323,8 @@ bool AuboDriver::setRobotJointsByMoveIt()
             }
             else
             {
-                ret = robot_send_service_.robotServiceSetRobotPosData2Canbus(ps.joint_pos_);
-                std::cout << "SENDING: " << ps.joint_pos_[0]<<","<<ps.joint_pos_[1]<<","<<ps.joint_pos_[2]<<","<<ps.joint_pos_[3]<<","<<ps.joint_pos_[4]<<","<<ps.joint_pos_[5]<<std::endl;
+                // ret = robot_send_service_.robotServiceSetRobotPosData2Canbus(ps.joint_pos_);
+                // std::cout << "SENDING: " << ps.joint_pos_[0]<<","<<ps.joint_pos_[1]<<","<<ps.joint_pos_[2]<<","<<ps.joint_pos_[3]<<","<<ps.joint_pos_[4]<<","<<ps.joint_pos_[5]<<std::endl;
             }
 #ifdef LOG_INFO_DEBUG
             //            struct timeb tb;
@@ -325,8 +337,8 @@ bool AuboDriver::setRobotJointsByMoveIt()
     }
     else
     {
-        if(start_move_)
-            start_move_ = false;
+        // if(start_move_)
+        //     start_move_ = false;
     }
 }
 
@@ -381,13 +393,16 @@ void AuboDriver::moveItPosCallback(const trajectory_msgs::JointTrajectoryPoint::
     for(int i = 0; i < axis_number_; i++)
         jointAngle[i] = msg->positions[i];
 
-    if(controller_connected_flag_)
+    if(!emergency_stopped_ && controller_connected_flag_ && control_option_ == aubo_driver::RosMoveIt)
     {
+
+        while (rib_buffer_size_ >= MINIMUM_BUFFER_SIZE) {
+            //pass
+        }
+
         /** The need a buffer to connect to the RIB to confirm the REAL TIME**/
         if(roadPointCompare(jointAngle, last_recieve_point_))
         {
-            //            data_recieved_ = true;
-            // ROS_INFO("Add new waypoint to the buffer.");
             data_count_ = 0;
             PlanningState ps;
 
@@ -395,25 +410,25 @@ void AuboDriver::moveItPosCallback(const trajectory_msgs::JointTrajectoryPoint::
             memcpy(ps.joint_vel_, &msg->velocities[0], sizeof(double) * axis_number_);
             memcpy(ps.joint_acc_, &msg->accelerations[0], sizeof(double) * axis_number_);
             memcpy(last_recieve_point_, jointAngle, sizeof(double) * axis_number_);
-            buf_queue_.push(ps);
-            if(buf_queue_.size() > 0 && !start_move_)
-                start_move_ = true;
-        }
-        else {
-            ROS_INFO("CANCEL WAYPOINT**************");
-            PlanningState ps;
+            robot_send_service_.robotServiceSetRobotPosData2Canbus(ps.joint_pos_);
 
-            memcpy(ps.joint_pos_, jointAngle, sizeof(double) * axis_number_);
-            memcpy(ps.joint_vel_, &msg->velocities[0], sizeof(double) * axis_number_);
-            memcpy(ps.joint_acc_, &msg->accelerations[0], sizeof(double) * axis_number_);
-            std::cout << "CANCELED: " << ps.joint_pos_[0]<<","<<ps.joint_pos_[1]<<","<<ps.joint_pos_[2]<<","<<ps.joint_pos_[3]<<","<<ps.joint_pos_[4]<<","<<ps.joint_pos_[5]<<std::endl;
 
+            std::cout<<jointAngle[0]<<","<<jointAngle[1]<<","<<jointAngle[2]<<","<<jointAngle[3]<<","<<jointAngle[4]<<","<<jointAngle[5]<<","<<std::endl;
+
+            
+
+            start_move_ = true; // set to false if no publishers??
+
+            // rib_buffer_size_ = 0;
         }
     }
     else
     {
+        ROS_INFO("CANCEL NEW WAYPOINT, %d, %d, %d, %d, %d", !emergency_stopped_, controller_connected_flag_, rib_buffer_size_ < MINIMUM_BUFFER_SIZE, control_option_ == aubo_driver::RosMoveIt, rib_buffer_size_);
+
         setTagrtPosition(jointAngle);
         rib_buffer_size_ = 0;
+        start_move_ = false;
     }
 }
 

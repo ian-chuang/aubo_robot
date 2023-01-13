@@ -62,6 +62,23 @@
 #include "sensor_msgs/JointState.h"
 #include <control_msgs/FollowJointTrajectoryFeedback.h>
 
+
+
+
+
+
+
+
+
+#include <fstream>
+
+
+
+
+
+
+
+
 #include "otg/otgnewslib.h"
 
 #define MINIMUM_BUFFER_SIZE 300
@@ -139,6 +156,18 @@ namespace aubo_driver
             const double THRESHHOLD = 0.000001;
 
         public:
+
+
+
+
+
+            
+            
+
+
+
+
+
             static std::string joint_name_[ARM_DOF];
             double joint_ratio_[ARM_DOF];
             int axis_number_;

@@ -16,10 +16,10 @@ class AuboHW : public hardware_interface::RobotHW
 public:
   AuboHW(ros::NodeHandle &nh) : nh(nh)
   {
-    int loop_hz = 500;
+    int loop_hz = 200;
     std::vector<std::string> joint_names{"shoulder_pan_joint", "shoulder_lift_joint", "elbow_joint", "wrist_1_joint", "wrist_2_joint", "wrist_3_joint"};
 
-    pub_joint_positions = nh.advertise<trajectory_msgs::JointTrajectoryPoint>("/moveItController_cmd", 1);
+    pub_joint_positions = nh.advertise<trajectory_msgs::JointTrajectoryPoint>("/moveItController_cmd", 100);
     sub_joint_states = nh.subscribe("/aubo_driver/joint_states", 1, &AuboHW::joint_state_cb, this);
 
     cmd.resize(AUBO_DOF);
