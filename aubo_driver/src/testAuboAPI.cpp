@@ -42,18 +42,18 @@
 
 using namespace aubo_driver;
 
-#define MAX_JOINT_ACC 100.0/180.0*M_PI  //unit rad/s^2
-#define MAX_JOINT_VEL 50.0/180.0*M_PI   //unit rad/s
+#define MAX_JOINT_ACC 40.0/180.0*M_PI  //unit rad/s^2
+#define MAX_JOINT_VEL 40.0/180.0*M_PI   //unit rad/s
 #define MAX_END_ACC    4                // unit m/s^2
 #define MAX_END_VEL    2                // unit m/s
 
 double zero_poeition[ARM_DOF] = {0};
-double initial_poeition[ARM_DOF] = {0.0/180.0*M_PI,  0.0/180.0*M_PI,  90.0/180.0*M_PI, 0.0/180.0*M_PI, 90.0/180.0*M_PI, 0.0/180.0*M_PI};
-double postion1[ARM_DOF] = {0.0/180.0*M_PI,  0.0/180.0*M_PI,  90.0/180.0*M_PI, 0.0/180.0*M_PI, 90.0/180.0*M_PI,   0.0/180.0*M_PI};
-double postion2[ARM_DOF] = {15.0/180.0*M_PI,  0.0/180.0*M_PI,  90.0/180.0*M_PI, 0.0/180.0*M_PI, 90.0/180.0*M_PI,   0.0/180.0*M_PI};
+double initial_poeition[ARM_DOF] = {0.0/180.0*M_PI,  0.0/180.0*M_PI,  -90.0/180.0*M_PI, 0.0/180.0*M_PI, -90.0/180.0*M_PI, 0.0/180.0*M_PI};
+double postion1[ARM_DOF] = {0.0/180.0*M_PI,  0.0/180.0*M_PI,  -90.0/180.0*M_PI, 0.0/180.0*M_PI, -90.0/180.0*M_PI,   0.0/180.0*M_PI};
+double postion2[ARM_DOF] = {15.0/180.0*M_PI,  0.0/180.0*M_PI,  -90.0/180.0*M_PI, 0.0/180.0*M_PI, -90.0/180.0*M_PI,   0.0/180.0*M_PI};
 
-double postion3[ARM_DOF] = {0.0/180.0*M_PI,  0.0/180.0*M_PI,  45.0/180.0*M_PI, 0.0/180.0*M_PI, 90.0/180.0*M_PI, 0.0/180.0*M_PI};
-double postion4[ARM_DOF] = {30.0/180.0*M_PI,  0.0/180.0*M_PI,  90.0/180.0*M_PI, 0.0/180.0*M_PI, 90.0/180.0*M_PI, 0.0/180.0*M_PI};
+double postion3[ARM_DOF] = {0.0/180.0*M_PI,  0.0/180.0*M_PI,  -45.0/180.0*M_PI, 0.0/180.0*M_PI, -90.0/180.0*M_PI, 0.0/180.0*M_PI};
+double postion4[ARM_DOF] = {30.0/180.0*M_PI,  0.0/180.0*M_PI,  -90.0/180.0*M_PI, 0.0/180.0*M_PI, -90.0/180.0*M_PI, 0.0/180.0*M_PI};
 
 void testMoveJ(AuboDriver &robot_driver)
 {
@@ -72,39 +72,66 @@ void testMoveJ(AuboDriver &robot_driver)
     robot_driver.robot_send_service_.robotServiceSetGlobalMoveJointMaxVelc(jointMaxVelc);
 
     /** Robot move to zero position **/
-    int ret = robot_driver.robot_send_service_.robotServiceJointMove(zero_poeition, true);
+    int ret = robot_driver.robot_send_service_.robotServiceJointMove(postion1, true);
     if(ret != aubo_robot_namespace::InterfaceCallSuccCode)
         ROS_ERROR("Failed to move to zero postions, error code:%d", ret);
 
-
-    /** loop for 3 times **/
-    for(int i=0; i<3; i++)
-    {
-        /** set relative offset**/
-        aubo_robot_namespace::MoveRelative relativeMoveOnBase;
-        relativeMoveOnBase.ena = true;
-        relativeMoveOnBase.relativePosition[0] = 0;
-        relativeMoveOnBase.relativePosition[1] = 0;
-        relativeMoveOnBase.relativePosition[2] = 0.05*(i%4);   //unit:m
-        robot_driver.robot_send_service_.robotServiceSetMoveRelativeParam(relativeMoveOnBase);
+    ROS_INFO("HELLLOO");
 
 
+    for (double i= 1 ; i < 15; i++) {
         /** switch to postion1 by moveJ **/
-        robot_driver.robot_send_service_.robotServiceJointMove(postion1, true);
+
+
+        postion1[0] = i/180.0*M_PI;
+
+        robot_driver.robot_send_service_.robotServiceJointMove(postion1, false);
+
+        ROS_INFO("MOVING");
+
         if(ret != aubo_robot_namespace::InterfaceCallSuccCode)
         {
             ROS_ERROR("Failed to move to zero postion, error code:%d", ret);
             break;
         }
-
-        /** switch to postion1 by moveJ **/
-        robot_driver.robot_send_service_.robotServiceJointMove(postion2, true);
-        if(ret != aubo_robot_namespace::InterfaceCallSuccCode)
-        {
-            ROS_ERROR("Failed to move to  postion1, error code:%d", ret);
-            break;
-        }
     }
+
+
+    // /** loop for 3 times **/
+    // for(int i=0; i<1; i++)
+    // {
+    //     /** set relative offset**/
+    //     // aubo_robot_namespace::MoveRelative relativeMoveOnBase;
+    //     // relativeMoveOnBase.ena = true;
+    //     // relativeMoveOnBase.relativePosition[0] = 0;
+    //     // relativeMoveOnBase.relativePosition[1] = 0;
+    //     // relativeMoveOnBase.relativePosition[2] = 0.05*(i%4);   //unit:m
+    //     // robot_driver.robot_send_service_.robotServiceSetMoveRelativeParam(relativeMoveOnBase);
+
+
+    //     /** switch to postion1 by moveJ **/
+    //     robot_driver.robot_send_service_.robotServiceJointMove(postion1, true);
+
+    //     ROS_INFO("MOVING");
+
+    //     if(ret != aubo_robot_namespace::InterfaceCallSuccCode)
+    //     {
+    //         ROS_ERROR("Failed to move to zero postion, error code:%d", ret);
+    //         break;
+    //     }
+
+    //     /** switch to postion1 by moveJ **/
+    //     robot_driver.robot_send_service_.robotServiceJointMove(postion2, true);
+    //     if(ret != aubo_robot_namespace::InterfaceCallSuccCode)
+    //     {
+    //         ROS_ERROR("Failed to move to  postion1, error code:%d", ret);
+    //         break;
+    //     }
+
+
+    // }
+
+    ROS_INFO("FINISHED");
 }
 
 void testMoveL(AuboDriver &robot_driver)
@@ -174,7 +201,7 @@ int main(int argc, char **argv)
   if(ret)
   {
     testMoveJ(robot_driver);
-    testMoveL(robot_driver);
+    // testMoveL(robot_driver);
   }
   else
       ROS_INFO("Failed to connect to the robot controller");

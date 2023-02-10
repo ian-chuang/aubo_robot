@@ -81,7 +81,7 @@
 
 #include "otg/otgnewslib.h"
 
-#define MINIMUM_BUFFER_SIZE 300
+#define MINIMUM_BUFFER_SIZE 50
 #define ARM_DOF 8               //support at most 8 axes
 #define MAXALLOWEDDELAY 50
 #define server_port 8899
@@ -97,27 +97,12 @@
 
 namespace aubo_driver
 {
-    struct PlanningState
-    {
-        double joint_vel_[ARM_DOF];
-        double joint_acc_[ARM_DOF];
-        double joint_pos_[ARM_DOF];
+    struct IOState {
+
     };
-    enum ROBOT_CONTROLLER_MODE
-    {
-        ROBOT_CONTROLLER=0, //
-        ROS_CONTROLLER
-    };
-    enum ControlOption
-    {
-        AuboAPI = 0,
-        RosMoveIt
-    };
-    enum ControMode
-    {
-        Teach = 0,
-        SendTargetGoal,
-        SynchronizeWithRealRobot
+
+    struct RobotConfig {
+
     };
 
     struct RobotState
@@ -147,13 +132,10 @@ namespace aubo_driver
             void updateControlStatus();
             void run();
             bool connectToRobotController();
-            bool setIO(aubo_msgs::SetIORequest& req, aubo_msgs::SetIOResponse& resp);
-            bool getFK(aubo_msgs::GetFKRequest& req, aubo_msgs::GetFKResponse& resp);
-            bool getIK(aubo_msgs::GetIKRequest& req, aubo_msgs::GetIKResponse& resp);
 
             const int UPDATE_RATE_ = 500;
             const int TIMER_SPAN_ = 50;
-            const double THRESHHOLD = 0.000001;
+            const double THRESHHOLD = 0.00000000001;
 
         public:
 

@@ -17,7 +17,7 @@ AuboHW::AuboHW(ros::NodeHandle &nh) : nh(nh)
   eff.resize(num_joints);
   cmd_prev.resize(num_joints);
 
-  pub_joint_positions = nh.advertise<trajectory_msgs::JointTrajectoryPoint>("/aubo_driver/command", 100);
+  pub_joint_positions = nh.advertise<trajectory_msgs::JointTrajectoryPoint>("moveItController_cmd", 100);
   sub_joint_states = nh.subscribe("/aubo_driver/joint_states", 1, &AuboHW::joint_state_cb, this);
 
   wait_for_joint_states();
