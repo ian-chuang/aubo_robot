@@ -17,7 +17,7 @@ AuboHW::AuboHW(ros::NodeHandle &nh) : nh(nh)
   eff.resize(num_joints);
   cmd_prev.resize(num_joints);
 
-  pub_joint_positions = nh.advertise<trajectory_msgs::JointTrajectoryPoint>("moveItController_cmd", 100);
+  pub_joint_positions = nh.advertise<std_msgs::Float64MultiArray>("aubo_driver/command", 1);
   sub_joint_states = nh.subscribe("/aubo_driver/joint_states", 1, &AuboHW::joint_state_cb, this);
 
   wait_for_joint_states();
@@ -99,18 +99,16 @@ void AuboHW::write(ros::Duration elapsed_time)
 {
   jnt_pos_saturation_interface.enforceLimits(elapsed_time);
 
-  trajectory_msgs::JointTrajectoryPoint msg;
+  std_msgs::Float64MultiArray msg;
   for (int i = 0; i < num_joints; i++)
   {
-    msg.positions.push_back(cmd.at(i));
-    msg.velocities.push_back(0);
-    msg.accelerations.push_back(0);
+    msg.data.push_back(cmd.at(i));
   }
 
-  if (cmd_prev != msg.positions)
+  if (cmd_prev != msg.data)
   {
     pub_joint_positions.publish(msg);
-    cmd_prev = msg.positions;
+    cmd_prev = msg.data;
   }
 }
 

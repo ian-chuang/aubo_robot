@@ -13,8 +13,7 @@
 #include <joint_limits_interface/joint_limits_rosparam.h>
 #include <joint_limits_interface/joint_limits_interface.h>
 #include <sensor_msgs/JointState.h>
-#include <std_msgs/Float32MultiArray.h>
-#include <trajectory_msgs/JointTrajectoryPoint.h>
+#include <std_msgs/Float64MultiArray.h>
 #include <mutex>
 
 class AuboHW : public hardware_interface::RobotHW

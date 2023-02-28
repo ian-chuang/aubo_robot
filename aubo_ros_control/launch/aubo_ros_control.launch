@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<launch>
+
+    <!-- Set the robot urdf on the parameter server -->
+    <arg name="urdf_path" default="$(find aubo_description)/urdf/aubo_i5.xacro" />
+    <param name="robot_description" command="xacro '$(arg urdf_path)'" />
+
+    <node pkg="aubo_driver" type="aubo_driver" name="aubo_driver">
+        <param name="server_host" value="192.168.0.197" />
+        <param name="server_port" value="8899" />
+    </node>
+
+    <node pkg="aubo_ros_control" type="aubo_hardware_interface" name="aubo_hardware_interface">
+    </node>
+
+    <rosparam file="$(find aubo_ros_control)/config/controllers.yaml" />
+    <node name="ros_control_controller_spawner" pkg="controller_manager" type="spawner"
+        respawn="false" output="screen"
+        args="joint_state_controller aubo_i5_controller" />
+
+
+    <include file="$(find aubo_i5_moveit_config)/launch/demo.launch">
+        <arg name="load_robot_description" value="false" />
+        <arg name="moveit_controller_manager" value="simple" />
+    </include>
+</launch>
