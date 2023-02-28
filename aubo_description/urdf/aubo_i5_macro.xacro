@@ -15,9 +15,9 @@
     <xacro:aubo_i5_transmission prefix="${prefix}" hw_interface="${hw_interface}" />
     <xacro:aubo_i5_gazebo prefix="${prefix}" />
 
-    <xacro:property name="max_effort_1" value="150.0" />
-    <xacro:property name="max_effort_2" value="28.0" />
-    <xacro:property name="max_velocity" value="${1}" />
+    <xacro:property name="max_effort_1" value="300.0" />
+    <xacro:property name="max_effort_2" value="50.0" />
+    <xacro:property name="max_velocity" value="${pi}" />
 
     <!-- INERTIA -->
     <xacro:macro name="I5_BaseLink_Inertia">
