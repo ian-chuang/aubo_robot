@@ -11,6 +11,7 @@ add_message_files(
    JointPos.msg
    TraPoint.msg
    GoalPoint.msg
+   TeachCommand.msg
  )
 
 ## Generate services in the 'srv' folder
