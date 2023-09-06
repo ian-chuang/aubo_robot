@@ -20,7 +20,7 @@
   <build_depend>urdf</build_depend>
   <build_depend>industrial_msgs</build_depend>
   <build_depend>industrial_utils</build_depend>
-  <build_depend>industrial_core</build_depend>
+  <build_depend>industrial_robot_client</build_depend>
   <build_depend>aubo_msgs</build_depend>
 
   <build_depend>actionlib</build_depend>
@@ -43,9 +43,8 @@
   <run_depend>urdf</run_depend>
   <run_depend>industrial_msgs</run_depend>
   <run_depend>industrial_utils</run_depend>
-  <run_depend>industrial_core</run_depend>
+  <run_depend>industrial_robot_client</run_depend>
   <run_depend>aubo_msgs</run_depend>
-
   <run_depend>pluginlib</run_depend>
   <run_depend>moveit_core</run_depend>
   <run_depend>moveit_fake_controller_manager</run_depend>
