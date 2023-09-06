@@ -61,7 +61,7 @@ int main(int argc, char **argv)
     while(ros::ok())
     {
         robot_driver.updateControlStatus();
-        loop_rate.sleep();
+        // loop_rate.sleep();
         ros::spinOnce();
     }
     ROS_WARN("Exiting robot_driver");

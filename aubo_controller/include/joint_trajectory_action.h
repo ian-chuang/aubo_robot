@@ -252,4 +252,3 @@ private:
 } //industrial_robot_client
 
 #endif /* JOINT_TRAJTORY_ACTION_H */
-

@@ -33,7 +33,7 @@
 
 namespace aubo_driver {
 
-std::string AuboDriver::joint_name_[ARM_DOF] = {"shoulder_joint","upperArm_joint","foreArm_joint","wrist1_joint","wrist2_joint","wrist3_joint"};
+std::string AuboDriver::joint_name_[ARM_DOF] = {"shoulder_pan_joint","shoulder_lift_joint","elbow_joint","wrist_1_joint","wrist_2_joint","wrist_3_joint"};
 
 AuboDriver::AuboDriver(int num = 0):delay_clear_times(0),buffer_size_(400),io_flag_delay_(0.02),data_recieved_(false),data_count_(0),real_robot_exist_(false),emergency_stopped_(false),protective_stopped_(false),normal_stopped_(false),
     controller_connected_flag_(false),start_move_(false),control_mode_ (aubo_driver::SendTargetGoal),rib_buffer_size_(0),jti(ARM_DOF,1.0/200),jto(ARM_DOF),collision_class_(6)
@@ -258,6 +258,8 @@ bool AuboDriver::setRobotJointsByMoveIt()
     // First check if the buf_queue_ is Empty
     if(!buf_queue_.empty())
     {
+        ROS_INFO("buffer size %d, rib_buffer_size %d", buf_queue_.size(), rib_buffer_size_);
+
         PlanningState ps = buf_queue_.front();
         buf_queue_.pop();
      
@@ -626,7 +628,7 @@ void AuboDriver::run()
     timer_.start();
 
     /** get the io states of the robot **/
-    mb_publish_thread_ = new std::thread(boost::bind(&AuboDriver::publishIOMsg, this));
+    // mb_publish_thread_ = new std::thread(boost::bind(&AuboDriver::publishIOMsg, this));
 }
 
 void AuboDriver::publishIOMsg()
@@ -846,4 +848,3 @@ bool AuboDriver::getIK(aubo_msgs::GetIKRequest& req, aubo_msgs::GetIKResponse& r
 }
 
 }
-
