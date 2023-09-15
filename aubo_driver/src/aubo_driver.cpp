@@ -258,8 +258,6 @@ bool AuboDriver::setRobotJointsByMoveIt()
     // First check if the buf_queue_ is Empty
     if(!buf_queue_.empty())
     {
-        ROS_INFO("buffer size %d, rib_buffer_size %d", buf_queue_.size(), rib_buffer_size_);
-
         PlanningState ps = buf_queue_.front();
         buf_queue_.pop();
      
@@ -628,7 +626,7 @@ void AuboDriver::run()
     timer_.start();
 
     /** get the io states of the robot **/
-    // mb_publish_thread_ = new std::thread(boost::bind(&AuboDriver::publishIOMsg, this));
+    mb_publish_thread_ = new std::thread(boost::bind(&AuboDriver::publishIOMsg, this));
 }
 
 void AuboDriver::publishIOMsg()
@@ -848,3 +846,4 @@ bool AuboDriver::getIK(aubo_msgs::GetIKRequest& req, aubo_msgs::GetIKResponse& r
 }
 
 }
+

@@ -135,7 +135,7 @@ namespace aubo_driver
             bool getIK(aubo_msgs::GetIKRequest& req, aubo_msgs::GetIKResponse& resp);
 
             const int UPDATE_RATE_ = 500;
-            const int TIMER_SPAN_ = 25;
+            const int TIMER_SPAN_ = 50;
             const double THRESHHOLD = 0.000001;
 
         public:
