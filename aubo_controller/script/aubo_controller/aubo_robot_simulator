@@ -108,7 +108,7 @@ class MotionControllerSimulator():
         self.positionUpdatedFlag = '0'
 
         rospy.logdebug("Creating joint state publisher")
-        self.moveit_joint_state_pub = rospy.Publisher('moveItController_cmd', JointTrajectoryPoint, queue_size=2000)
+        self.moveit_joint_state_pub = rospy.Publisher('moveItController_cmd', JointTrajectoryPoint, queue_size=1000000000000)
 
         rospy.logdebug("Creating joint state subscriber!")
         self.update_joint_state_subs = rospy.Subscriber('/aubo_driver/real_pose', Float32MultiArray, self.update_joint_state_callback)

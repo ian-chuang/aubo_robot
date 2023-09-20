@@ -78,7 +78,7 @@ AuboDriver::AuboDriver(int num = 0):delay_clear_times(0),buffer_size_(400),io_fl
     /** subscribe topics **/
     trajectory_execution_subs_ = nh_.subscribe("trajectory_execution_event", 10, &AuboDriver::trajectoryExecutionCallback,this);
     robot_control_subs_ = nh_.subscribe("robot_control", 10, &AuboDriver::robotControlCallback,this);
-    moveit_controller_subs_ = nh_.subscribe("moveItController_cmd", 2000, &AuboDriver::moveItPosCallback,this);
+    moveit_controller_subs_ = nh_.subscribe("moveItController_cmd", 1000000000000, &AuboDriver::moveItPosCallback,this);
     teach_subs_ = nh_.subscribe("teach_cmd", 10, &AuboDriver::teachCallback,this);
     moveAPI_subs_ = nh_.subscribe("moveAPI_cmd", 10, &AuboDriver::AuboAPICallback, this);
     controller_switch_sub_ = nh_.subscribe("/aubo_driver/controller_switch", 10, &AuboDriver::controllerSwitchCallback, this);
@@ -260,6 +260,9 @@ bool AuboDriver::setRobotJointsByMoveIt()
     {
         PlanningState ps = buf_queue_.front();
         buf_queue_.pop();
+
+
+        ROS_INFO("rib_buffer_size_ = %d",rib_buffer_size_);
      
 
         if(controller_connected_flag_)      // actually no need this judgment
